@@ -54,6 +54,13 @@ public class Interpolation{
         NearY.removeAllElements();
     }
 
+    private int checkEquals(){
+        for(int i=0; i<NearX.size(); i++){
+            if(xx == NearX.get(i))
+                return i;
+        }
+        return -1;
+    }
     //Поиск ближайшех к XX точек
     private void findNear(int p){
         setNearNull();
@@ -97,9 +104,11 @@ public class Interpolation{
     private double Lagrange(){
         double res_chisl =0, res_zn=0,P;
         for(int i=0; i<NearX.size();i++){
-            P=A(i);
-            res_chisl +=NearY.get(i)*P / (xx-x[i]);
-            res_zn+=P/(xx-x[i]);
+            if(xx-x[i] !=0) {
+                P = A(i);
+                res_chisl += NearY.get(i) * P / (xx - x[i]);
+                res_zn += P / (xx - x[i]);
+            }
         }
         return res_chisl/res_zn;
     }
@@ -107,14 +116,23 @@ public class Interpolation{
     public void calculation() throws IOException {
         if(loadData() == true)
         {
-            findNear(3);
-            yy = Lagrange();
 
-            findNear(4);
-            yy_3 = Lagrange();
+                findNear(3);
+            int flag = checkEquals();
+            if(flag == -1) {
+                yy = Lagrange();
 
-            System.out.println("Для 3 точек: " + yy);
-            System.out.println("Для 4 точек: " + yy_3);
+                findNear(4);
+                yy_3 = Lagrange();
+
+                System.out.println("Для 3 точек: " + yy);
+                System.out.println("Для 4 точек: " + yy_3);
+                System.out.println("EPS_YY: " + Math.abs(yy_3-yy));
+            }
+            else{
+                System.out.println("Значение точки дано в файле:  " + NearY.get(flag));
+
+            }
         }
         else
         {
